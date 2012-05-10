@@ -17,6 +17,7 @@ package com.example.android.nfc.simulator;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -29,6 +30,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Locale;
 
@@ -41,7 +43,7 @@ public class FakeTagsActivity extends ListActivity {
 
     static final byte[] UID = new byte[] {0x05, 0x00, 0x03, 0x08};
 
-    ArrayAdapter<TagDescription> mAdapter;
+    ArrayAdapter<Uri> mAdapter;
 
     public static NdefRecord newTextRecord(String text, Locale locale, boolean encodeInUtf8) {
         Preconditions.checkNotNull(text);
@@ -86,8 +88,9 @@ public class FakeTagsActivity extends ListActivity {
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        final ArrayAdapter<TagDescription> adapter = new ArrayAdapter<TagDescription>(
+        final ArrayAdapter<Uri> adapter = new ArrayAdapter<Uri>(
             this, android.R.layout.simple_list_item_1, android.R.id.text1);
+        /*
         adapter.add(
             new TagDescription("Broadcast NFC Text Tag", MockNdefMessages.ENGLISH_PLAIN_TEXT));
         adapter.add(new TagDescription(
@@ -95,15 +98,26 @@ public class FakeTagsActivity extends ListActivity {
         adapter.add(new TagDescription(
             "Broadcast NFC SmartPoster URL", MockNdefMessages.SMART_POSTER_URL_NO_TEXT));
         adapter.add(new TagDescription("Slideshow", MockNdefMessages.URL_SLIDESHOW));
+        adapter.add(new TagDescription("Book circulation", MockNdefMessages.URL_CIRCULATION));
+        */
+        adapter.add(Uri.parse("http://mobilesw.yonsei.ac.kr/library?service=slideshow&SessionID=hf"));
+        adapter.add(Uri.parse("http://mobilesw.yonsei.ac.kr/library?service=gateway"));
+        adapter.add(Uri.parse("http://mobilesw.yonsei.ac.kr/library?service=cardgame"));
+        adapter.add(Uri.parse("http://mobilesw.yonsei.ac.kr/library?service=media_circulation&mediaid=600001"));
+        adapter.add(Uri.parse("http://mobilesw.yonsei.ac.kr/library?service=circulation&bookid=600778"));
+        adapter.add(Uri.parse("http://mobilesw.yonsei.ac.kr/library?service=seat&SeatID=1_1_2"));
         setListAdapter(adapter);
         mAdapter = adapter;
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        final TagDescription description = mAdapter.getItem(position);
-        final Intent intent = new Intent(NfcAdapter.ACTION_TAG_DISCOVERED);
-        intent.putExtra(NfcAdapter.EXTRA_NDEF_MESSAGES, description.msgs);
+        //final TagDescription description = mAdapter.getItem(position);
+        final Uri uri = mAdapter.getItem(position);
+    	final Intent intent = new Intent(Intent.ACTION_VIEW);
+    	intent.setData(uri);
+    	//final Intent intent = new Intent(NfcAdapter.ACTION_TAG_DISCOVERED);
+        //intent.putExtra(NfcAdapter.EXTRA_NDEF_MESSAGES, description.msgs);
         startActivity(intent);
     }
 }
